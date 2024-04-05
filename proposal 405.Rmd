@@ -1,0 +1,46 @@
+---
+title: "proposal 405"
+output:
+  pdf_document:
+    latex_engine: xelatex
+date: "2024-04-05"
+---
+
+## Project Proposal
+
+### Data Reading
+
+```{r}
+library(readr)
+data <- read_tsv("amazon_reviews_multilingual_US_v1_00.tsv",show_col_types = FALSE)
+head(data)
+```
+
+### Introduction to Dataset
+
+Amazon Customer Reviews is a feature of the Amazon website that allows customers to leave reviews and opinions about their experience in getting a product from Amazon. Having existed since 1995, millions of Amazon customers have contributed over a hundred million reviews. This data is a collection of reviews written in the Amazon.com marketplace and associated metadata from 1995 until 2015. It comprises 37 datasets, with each dataset containing customer review data for a distinct product category.
+
+### Description of Variables
+
+-   Marketplace: The 2 letter country code of the marketplace.
+-   Customer ID: the unique ID for each customer.
+-   Review ID: the unique ID for each review.
+-   Product ID: the unique idea for each product.
+-   Product Parent: ID that can be used to identify reviews for the same product.
+-   Product Title: Title of the product.
+-   Product Category: Broad product category that can be used to group reviews.
+-   Star Rating: The rating of the review itself (from 1 star to 5 star).
+-   Helpful Votes: Total number of helpful votes for each review.
+-   Total Votes: Total number of votes for each review.
+-   Vine: Review was written as part of the Vine program.
+-   Verified_purchase: The review is on a verified purchase.
+-   Review_headline: The title of the review.
+-   Review_body: The review text.
+-   Review_date: The date the review was written.
+
+### Statistical Methods& Computational Steps
+
+-   First，we would find out the length of the text in each variable from review_headline and review_body, and then name them length_of_review_headline and length_of_review_body. We could conduct segmented regression analysis to address the question of how variables such as helpful_votes, total_votes, length_of_review_headline, and length_of_review_body impact star_rating within each product category. This method involves fitting separate regression models for each category, with star_rating as the dependent variable and helpful_votes, total_votes, length_of_review_headline, and length_of_review_body as independent variables. By doing so, we can uncover the specific relationships between these predictors and star_rating within distinct product categories, while considering potential variations across categories. Additionally, we can use statistical tests, such as ANOVA or t-tests, to determine if there are significant differences in the regression coefficients between categories.
+-   We will understand trends in Amazon customer review datasets from a time series perspective, including changes in metrics such as the number of reviews, and star ratings, over time. Firstly, we will convert our datasets to a time series format by using the 'tsibble' library. Secondly, using the ggplot2 package to visualize a time series graph which will show changes in the metrics over time. After that, the time series was seasonally decomposed to isolate trends. This helps us understand the seasonal patterns and long-term trends behind the review activity. Finally, trends and patterns are identified and interpreted through our time series and seasonal analysis. Trend analysis can help us reveal changes in product popularity, the evolution of consumer preferences, and long-term trends in market dynamics.
+
+- Link to GitHub Repository: https://github.com/lanfangHai/Group6PRoject
