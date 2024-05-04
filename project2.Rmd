@@ -1,0 +1,199 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-05-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(knitr)
+library(tidyverse)
+library(topicmodels)
+library(tidytext)
+library(dplyr)
+library(ggplot2)
+library(forcats)
+```
+
+
+
+```{r}
+data2 <- fread("amazon_reviews_us_Major_Appliances_v1_00.tsv" , quote = "" , nrow = 3000)
+head(data2)
+```
+
+
+```{r}
+data_clean <- data2 %>%
+  unnest_tokens(word, review_body) %>%
+  anti_join(stop_words) %>%
+  filter(!str_detect(word, "^\\d+$"))
+```
+
+```{r}
+dtm <- data_clean %>%
+  filter(word != "br") |>
+  count(review_id, word) %>%
+  cast_dtm(review_id, word, n)
+```
+
+```{r}
+fit <- LDA(dtm, k = 6, control = list(seed = 479))
+```
+
+```{r}
+beta = tidy(fit, matrix = "beta") |>
+  group_by(topic) |>
+  slice_max(beta, n=30)
+```
+
+
+```{r}
+doc_topics <- tidy(fit, matrix = "gamma")
+top_documents_for_topic3 <- doc_topics %>%
+  filter(topic == 3) %>%
+  arrange(desc(gamma)) %>%
+  top_n(10)
+top_comments_for_topic3 <- data2 %>%
+  semi_join(top_documents_for_topic3, by = c("review_id" = "document")) %>%
+  select(review_id, review_body) 
+print(top_comments_for_topic3)
+write.csv(top_comments_for_topic3, "major_text.csv", row.names = FALSE)
+```
+
+```{r}
+topics <- tidy(fit, matrix = "beta")
+
+# 查看每个主题的前10个词汇
+top_terms <- topics %>%
+  group_by(topic) %>%
+  top_n(10, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+```
+
+
+
+```{r, fig.width = 8, fig.height = 4}
+plot_data = read.csv("beta_Major_Appliances.csv")
+ggplot(plot_data) +
+  geom_col(aes(reorder_within(term, -beta, topic), beta)) +
+  facet_wrap(~ topic, scales = "free_x") +
+  scale_x_reordered() +
+  scale_y_continuous(expand = c(0, 0, 0.1, 0)) +
+  labs(x = "Word", y = expression(beta[k])) +
+  theme_minimal()+
+  theme(
+    axis.text.x = element_text(angle = 90, size = 5),
+    axis.title = element_text(size = 20)
+    )
+
+```
+
+
+```{r, fig.width = 8, fig.height = 4}
+plot_data = read.csv("beta_Major_Appliances.csv")
+ggplot(plot_data) +
+  geom_col(aes(reorder_within(term, -beta, topic), beta, fill = factor(topic))) +
+  facet_wrap(~ topic, scales = "free_x") +
+  scale_x_reordered() +
+  scale_y_continuous(expand = c(0, 0, 0.1, 0)) +
+  scale_fill_viridis_d(begin = 0.3, end = 0.9, option = "C") + 
+  labs(x = "Word", y = expression(beta[k])) +
+  theme_minimal()+
+  theme(
+    axis.text.x = element_text(angle = 90, size = 5),
+    axis.title = element_text(size = 20)
+    )
+
+```
+
+```{r}
+#top_topic_text = read.csv("text_Major_Appliances.csv")
+#top_topic_text
+```
+
+```{r, fig.width = 8, fig.height = 4}
+plot_data = read.csv("beta_Mobile_Electronics.csv")
+ggplot(plot_data) +
+  geom_col(aes(reorder_within(term, -beta, topic), beta)) +
+  facet_wrap(~ topic, scales = "free_x") +
+  scale_x_reordered() +
+  scale_y_continuous(expand = c(0, 0, 0.1, 0)) +
+  labs(x = "Word", y = expression(beta[k]),title = "6 topics of Mobile_Electronics review") +
+  theme(
+    axis.text.x = element_text(angle = 90, size = 5),
+    axis.title = element_text(size = 20)
+    )
+
+```
+
+```{r}
+#top_topic_text = read.csv("text_Mobile_Electronics.csv")
+```
+```{r, fig.width = 8, fig.height = 4}
+plot_data = read.csv("beta_Digital_Software.csv")
+ggplot(plot_data) +
+  geom_col(aes(reorder_within(term, -beta, topic), beta)) +
+  facet_wrap(~ topic, scales = "free_x") +
+  scale_x_reordered() +
+  scale_y_continuous(expand = c(0, 0, 0.1, 0)) +
+  labs(x = "Word", y = expression(beta[k]),title = "6 topics of Digital_Software review") +
+  theme(
+    axis.text.x = element_text(angle = 90, size = 5),
+    axis.title = element_text(size = 20)
+    )
+
+```
+
+```{r}
+#top_topic_text = read.csv("text_Digital_Software.csv")
+```
+
+```{r, fig.width = 8, fig.height = 4}
+plot_data = read.csv("beta_Digital_Video_Games.csv")
+ggplot(plot_data) +
+  geom_col(aes(reorder_within(term, -beta, topic), beta)) +
+  facet_wrap(~ topic, scales = "free_x") +
+  scale_x_reordered() +
+  scale_y_continuous(expand = c(0, 0, 0.1, 0)) +
+  labs(x = "Word", y = expression(beta[k]),title = "6 topics of Digital_Video_Games review") +
+  theme(
+    axis.text.x = element_text(angle = 90, size = 5),
+    axis.title = element_text(size = 20)
+    )
+
+```
+
+```{r}
+#top_topic_text = read.csv("text_Digital_Video_Games.csv")
+```
+
+```{r, fig.width = 8, fig.height = 4}
+plot_data = read.csv("beta_Gift_Card.csv")
+ggplot(plot_data) +
+  geom_col(aes(reorder_within(term, -beta, topic), beta)) +
+  facet_wrap(~ topic, scales = "free_x") +
+  scale_x_reordered() +
+  scale_y_continuous(expand = c(0, 0, 0.1, 0)) +
+  labs(x = "Word", y = expression(beta[k]),title = "6 topics of Gift_Card review") +
+  theme(
+    axis.text.x = element_text(angle = 90, size = 5),
+    axis.title = element_text(size = 20)
+    )
+
+```
+
+```{r}
+#top_topic_text = read.csv("text_Gift_Card.csv")
+```
+
+
+
+
+
+

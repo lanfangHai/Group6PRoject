@@ -1,0 +1,136 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-04-29"
+---
+```{r}
+library(data.table)
+
+# 使用 fread 读取 TSV 文件
+data <- fread("amazon_reviews_us_Apparel_v1_00.tsv", nrows = 10000)
+
+head(data)
+```
+
+```{r}
+library(tidytext)
+library(dplyr)
+```
+
+
+
+```{r}
+positive_reviews <- data %>% 
+  filter(star_rating >= 4) %>% 
+  select(review_body)
+
+negative_reviews <- data %>% 
+  filter(star_rating <= 3) %>% 
+  select(review_body)
+```
+
+```{r}
+data_clean <- data %>% 
+  mutate(review_body = tolower(review_body)) %>% 
+  unnest_tokens(word, review_body) %>% 
+  anti_join(stop_words) %>%
+  filter(!str_detect(word, "^\\d+$"))
+```
+
+```{r}
+positive_words <- positive_reviews %>% 
+  unnest_tokens(word, review_body) %>% 
+  anti_join(stop_words) %>%
+  count(word, sort = TRUE)
+
+negative_words <- negative_reviews %>% 
+  unnest_tokens(word, review_body) %>% 
+  anti_join(stop_words) %>%
+  count(word, sort = TRUE)
+
+```
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+```
+
+
+```{r, fig.width = 8, fig.height = 4}
+plot_data = read.csv("word_amazon_reviews_us_Digital_Software_v1_00.tsv.csv")
+plot_data <- plot_data %>%
+  filter(word != "34") 
+ggplot(plot_data, aes(reorder(word, n), n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(x = "Word", y = "Frequency",title = "Most commonly terms in Digital_Software category") +
+  coord_flip() +
+  theme_minimal() +
+  scale_fill_manual(values = c("Negative" = "#FF6347", "Positive" = "#40E0D0")) 
+```
+
+```{r, fig.width = 8, fig.height = 4}
+plot_data = read.csv("word_amazon_reviews_us_Digital_Video_Games_v1_00.tsv.csv")
+plot_data <- plot_data %>%
+  filter(word != "34") 
+ggplot(plot_data, aes(reorder(word, n), n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(x = "Word", y = "Frequency",title = "Most commonly terms in Digital_Video_Games category") +
+  coord_flip() +
+  theme_minimal() +
+  scale_fill_manual(values = c("Negative" = "#FF6347", "Positive" = "#40E0D0")) 
+```
+
+
+
+```{r, fig.width = 8, fig.height = 4}
+plot_data = read.csv("word_amazon_reviews_us_Furniture_v1_00.tsv.csv")
+plot_data <- plot_data %>%
+  filter(word != "34") 
+ggplot(plot_data, aes(reorder(word, n), n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(x = "Word", y = "Frequency",title = "Most commonly terms in Furniture category") +
+  coord_flip() +
+  theme_minimal() +
+  scale_fill_manual(values = c("Negative" = "#FF6347", "Positive" = "#40E0D0")) 
+```
+
+```{r, fig.width = 8, fig.height = 4}
+plot_data = read.csv("word_amazon_reviews_us_Gift_Card_v1_00.tsv.csv")
+plot_data <- plot_data %>%
+  filter(word != "34") 
+ggplot(plot_data, aes(reorder(word, n), n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(x = "Word", y = "Frequency",title = "Most commonly terms in Gift_Card category") +
+  coord_flip() +
+  theme_minimal() +
+  scale_fill_manual(values = c("Negative" = "#FF6347", "Positive" = "#40E0D0")) 
+```
+```{r, fig.width = 8, fig.height = 4}
+plot_data = read.csv("word_amazon_reviews_us_Major_Appliances_v1_00.tsv.csv")
+plot_data <- plot_data %>%
+  filter(word != "34") 
+ggplot(plot_data, aes(reorder(word, n), n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(x = "Word", y = "Frequency",title = "Most commonly terms in Major_Appliances category") +
+  coord_flip() +
+  theme_minimal() +
+  scale_fill_manual(values = c("Negative" = "#FF6347", "Positive" = "#40E0D0")) 
+```
+
+```{r, fig.width = 8, fig.height = 4}
+plot_data = read.csv("word_amazon_reviews_us_Mobile_Electronics_v1_00.tsv.csv")
+plot_data <- plot_data %>%
+  filter(word != "34") 
+ggplot(plot_data, aes(reorder(word, n), n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(x = "Word", y = "Frequency",title = "Most commonly terms in Mobile_Electronics category") +
+  coord_flip() +
+  theme_minimal() +
+  scale_fill_manual(values = c("Negative" = "#FF6347", "Positive" = "#40E0D0")) 
+```
