@@ -1,0 +1,86 @@
+---
+title: "project group6"
+output:
+  pdf_document: default
+date: "2024-04-30"
+---
+
+```{r}
+setwd("/Users/dongchenxi/Downloads/counts")
+file_names <- list.files()
+for (file in file_names) {
+    # Read the CSV file into a data frame
+    data <- read.csv(file, header = TRUE)
+
+    # Plot the data
+    barplot(data$Freq, names.arg = data$star_rating, 
+            main = file, xlab = "Star Rating", ylab = "Frequency")
+}
+```
+
+```{r}
+
+setwd("/Users/dongchenxi/Downloads/counts")
+# List of file paths
+file_paths <- list.files(pattern = "*.csv", full.names = TRUE)
+
+combined_df <- data.frame()
+
+# Loop through each file
+for (file_path in file_paths) {
+  # Read the file
+  data <- read.csv(file_path)
+  
+  # Rename the 'Freq' column to the filename (without extension)
+  col_name <- tools::file_path_sans_ext(basename(file_path))
+  names(data)[names(data) == "Freq"] <- col_name
+  
+  # Add the data to the combined data frame
+  if (nrow(combined_df) == 0) {
+    combined_df <- data
+  } else {
+    combined_df <- merge(combined_df, data, by = "star_rating", all = TRUE)
+  }
+}
+combined_df[is.na(combined_df)] <- 0
+
+combined_df <- t(combined_df)
+
+# Print the combined data frame
+combined_df = data.frame(combined_df)[-1,]
+
+library(tibble)
+combined_df <- rownames_to_column(combined_df, var = "Category")
+colnames(combined_df ) <- c("Category","star_0","star_1","star_2","star_3","star_4","star_5")
+combined_df
+
+```
+
+```{r}
+df = combined_df
+row_names= df[,1]
+df = df[,-1]
+rownames(df)= row_names
+cor_df =  data.frame()
+for ( i in 1:(nrow(combined_df) - 1)){
+  for (j in (i + 1):nrow(combined_df)){
+    category1 = as.character(unlist(combined_df[i,][1]))
+    category2 = as.character(unlist(combined_df[j,][1]))
+    correlation = cor(as.numeric(df[i,]),as.numeric(df[j,]))
+    new_row = c(category1,category2,as.numeric(correlation))
+    cor_df = rbind(cor_df, new_row)
+  }
+}
+colnames(cor_df) = c("category1","category2","correlation")
+
+cor_df$correlation = as.numeric(cor_df$correlation)
+sorted_df <- cor_df[order(-abs(cor_df$correlation)), ]
+head(sorted_df)
+```
+
+
+```{r}
+df_result = subset(sorted_df, correlation < 0.9)
+df_result
+```
+
